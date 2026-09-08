@@ -4,12 +4,13 @@ metadata:
   name: whoami-service
   labels:
     app: whoami
+{{- $service := .Values.service | default dict }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $service.type | default "ClusterIP" }}
   selector:
     app: whoami
   ports:
     - name: http
-      port: {{ .Values.service.port }}
+      port: {{ $service.port | default 80 }}
       targetPort: 80
       protocol: TCP
