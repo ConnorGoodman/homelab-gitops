@@ -9,6 +9,8 @@ spec:
     repoURL: https://github.com/ConnorGoodman/homelab-gitops.git
     targetRevision: main
     path: apps/whoami
+    helm:
+      releaseName: whoami
   destination:
     server: https://kubernetes.default.svc
     namespace: whoami
