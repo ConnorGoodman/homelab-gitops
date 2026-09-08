@@ -1,0 +1,31 @@
+replicaCount: 2
+
+image:
+  repository: technitium/dns-server
+  tag: latest
+
+persistence:
+  enabled: true
+  storageClassName: local-path
+  size: 2Gi
+  # per-pod volume, NOT a single shared PVC — each replica owns its own config dir
+  accessMode: ReadWriteOnce
+
+antiAffinity:
+  enabled: true
+
+nodeAffinity:
+  primary:
+    node-role: dns-primary
+  secondary:
+    node-role: dns-secondary
+
+service:
+  type: LoadBalancer   # requires MetalLB
+  loadBalancerIP: 192.168.1.53   # pick a free static IP on your LAN
+  dnsPort: 53
+  webPort: 5380
+
+clustering:
+  enabled: true
+  primaryReplicaIndex: 0

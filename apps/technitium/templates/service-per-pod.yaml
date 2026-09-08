@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: technitium-0-dns
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.1.53
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: technitium-0
+  ports:
+    - {name: dns-udp, port: 53, protocol: UDP}
+    - {name: dns-tcp, port: 53, protocol: TCP}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: technitium-1-dns
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.1.54
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: technitium-1
+  ports:
+    - {name: dns-udp, port: 53, protocol: UDP}
+    - {name: dns-tcp, port: 53, protocol: TCP}
