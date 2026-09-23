@@ -34,15 +34,17 @@ spec:
                   chmod 700 /tmp/git-askpass;
                   export GIT_ASKPASS=/tmp/git-askpass GIT_TERMINAL_PROMPT=0;
                   {{- range .Values.gitSync.repositories }}
+                  repo_url="https://$GIT_USERNAME@{{ trimPrefix "https://" .repository }}";
                   if [ -d {{ .folder | quote }}/.git ]; then
-                    git -C {{ .folder | quote }} pull --ff-only origin {{ .branch | quote }};
+                    git -C {{ .folder | quote }} fetch origin {{ .branch | quote }};
+                    git -C {{ .folder | quote }} reset --hard origin/{{ .branch }};
                   else
                     git clone --branch {{ .branch | quote }}
-                    "https://$GIT_USERNAME@{{ trimPrefix "https://" .repository }}"
+                    "$repo_url"
                     {{ .folder | quote }};
                   fi;
                   git -C {{ .folder | quote }} remote set-url origin
-                  "https://$GIT_USERNAME@{{ trimPrefix "https://" .repository }}";
+                  "$repo_url";
                   {{- end }}
               volumeMounts:
                 - name: data
