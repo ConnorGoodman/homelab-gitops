@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fantasy-exporter-cronjob
+spec:
+  schedule: {{ .Values.schedule | quote}}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: fantasy-exporter
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              args:
+                - export-all
+                - /config
+              {{ if .Values.espnCredentials.enabled }}
+              envFrom:
+                - secretRef:
+                    name: fantasy-exporter-espn
+              {{ end }}
+              volumeMounts:
+                - name: config
+                  mountPath: /config
+                - name: data
+                  mountPath: /data
+          volumes:
+            - name: config
+              configMap:
+                name: fantasy-exporter-config
+            - name: data
+              persistentVolumeClaim:
+                claimName: fantasy-exporter-pvc

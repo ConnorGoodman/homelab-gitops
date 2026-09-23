@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fantasy-exporter
+description: Helm chart for the fantasy football exporter application
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

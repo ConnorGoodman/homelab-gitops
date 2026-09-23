@@ -1,0 +1,37 @@
+image:
+  repository: ghcr.io/connorgoodman/fantasyfootballleagueexporter
+  tag: latest
+  pullPolicy: Always
+
+schedule: "0 */6 * * *"
+
+storage:
+  size: 1Gi
+  storageClassName: "local-path"
+
+exportConfig:
+  - name: "sleeper-league"
+    provider: "sleeper"
+    league_id: "1389749221648793600"
+    folder: "/data/sleeper"
+    my_team_user_id: "CMoneyGman"
+    my_team_label: "Connor's Slopperia"
+    median_bonus: true
+    fantasypros: true
+    weeks: 18
+  - name: "espn-league"
+    provider: "espn"
+    league_id: "1001619130"
+    season: "2026"
+    folder: "/data/espn"
+    my_team_user_id: "1"
+    my_team_label: "ESPN Team 1"
+    median_bonus: true
+    fantasypros: true
+    weeks: 18
+
+# Credentials used to log in to ESPN to access league data. These are required for the ESPN provider to work.
+espnCredentials:
+  enabled: false
+  swid: "<SWID>"
+  s2: "<S2>"

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fantasy-exporter-config
+data:
+  .fantasy-export.json: |
+{{ .Values.exportConfig | toJson | nindent 4 }}
