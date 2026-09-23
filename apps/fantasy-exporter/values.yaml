@@ -9,6 +9,21 @@ storage:
   size: 1Gi
   storageClassName: "local-path"
 
+gitSync:
+  enabled: true
+  image: alpine/git:latest
+  existingSecret: "fantasy-exporter-github"
+  username: "x-access-token"
+  repositories:
+    - name: "sleeper-league"
+      repository: "https://github.com/ConnorGoodman/SleeperFantasyExport2026.git"
+      branch: "main"
+      folder: "/data/sleeper"
+    - name: "espn-league"
+      repository: "https://github.com/ConnorGoodman/EspnFantasyExport2026.git"
+      branch: "main"
+      folder: "/data/espn"
+
 exportConfig:
   - name: "sleeper-league"
     provider: "sleeper"

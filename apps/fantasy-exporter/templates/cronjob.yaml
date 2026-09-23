@@ -11,14 +11,56 @@ spec:
     spec:
       template:
         spec:
-          restartPolicy: OnFailure
+          restartPolicy: Never
+          {{ if .Values.gitSync.enabled }}
+          initContainers:
+            - name: git-pull
+              image: {{ .Values.gitSync.image | quote }}
+              env:
+                - name: GIT_USERNAME
+                  value: {{ .Values.gitSync.username | quote }}
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.gitSync.existingSecret }}
+                      key: token
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  set -eu;
+                  rm -f /data/.export-complete;
+                  rm -f /data/.export-failed;
+                  printf '#!/bin/sh\nprintf "%%s\\n" "$GITHUB_TOKEN"\n' > /tmp/git-askpass;
+                  chmod 700 /tmp/git-askpass;
+                  export GIT_ASKPASS=/tmp/git-askpass GIT_TERMINAL_PROMPT=0;
+                  {{- range .Values.gitSync.repositories }}
+                  if [ -d {{ .folder | quote }}/.git ]; then
+                    git -C {{ .folder | quote }} pull --ff-only origin {{ .branch | quote }};
+                  else
+                    git clone --branch {{ .branch | quote }}
+                    "https://$GIT_USERNAME@{{ trimPrefix "https://" .repository }}"
+                    {{ .folder | quote }};
+                  fi;
+                  git -C {{ .folder | quote }} remote set-url origin
+                  "https://$GIT_USERNAME@{{ trimPrefix "https://" .repository }}";
+                  {{- end }}
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+          {{ end }}
           containers:
             - name: fantasy-exporter
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command: ["/bin/sh", "-c"]
               args:
-                - export-all
-                - /config
+                - >-
+                  if fantasy-export export-all /config; then
+                    touch /data/.export-complete;
+                  else
+                    touch /data/.export-failed;
+                    exit 1;
+                  fi
               {{ if .Values.espnCredentials.enabled }}
               envFrom:
                 - secretRef:
@@ -29,6 +71,40 @@ spec:
                   mountPath: /config
                 - name: data
                   mountPath: /data
+            {{ if .Values.gitSync.enabled }}
+            {{- range .Values.gitSync.repositories }}
+            - name: git-push-{{ .name }}
+              image: {{ .Values.gitSync.image | quote }}
+              env:
+                - name: GIT_USERNAME
+                  value: {{ .Values.gitSync.username | quote }}
+                - name: GIT_BRANCH
+                  value: {{ .branch | quote }}
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.gitSync.existingSecret }}
+                      key: token
+              command: ["/bin/sh", "-c"]
+              args:
+                - >-
+                  set -eu;
+                  printf '#!/bin/sh\nprintf "%%s\\n" "$GITHUB_TOKEN"\n' > /tmp/git-askpass;
+                  chmod 700 /tmp/git-askpass;
+                  export GIT_ASKPASS=/tmp/git-askpass GIT_TERMINAL_PROMPT=0;
+                  while [ ! -f /data/.export-complete ] && [ ! -f /data/.export-failed ]; do sleep 2; done;
+                  if [ -f /data/.export-failed ]; then exit 1; fi;
+                  git -C {{ .folder | quote }} config user.name "fantasy-exporter";
+                  git -C {{ .folder | quote }} config user.email "fantasy-exporter@users.noreply.github.com";
+                  git -C {{ .folder | quote }} add -A;
+                  if git -C {{ .folder | quote }} diff --cached --quiet; then exit 0; fi;
+                  git -C {{ .folder | quote }} commit -m "Sync {{ .name }} data";
+                  git -C {{ .folder | quote }} push origin "$GIT_BRANCH"
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+            {{- end }}
+            {{ end }}
           volumes:
             - name: config
               configMap:

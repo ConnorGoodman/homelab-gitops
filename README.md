@@ -20,6 +20,22 @@ kubectl -n fantasy-exporter create secret generic fantasy-exporter-espn \
   --from-literal=ESPN_SWID='your-swid' \
   --from-literal=ESPN_S2='your-s2'
 
+Create a GitHub fine-grained token with Contents read/write access to the export
+repository, then create the GitHub credentials Secret:
+
+```bash
+kubectl -n fantasy-exporter create secret generic fantasy-exporter-github \
+  --from-literal=token='your-github-token'
+```
+
+The chart is configured to use one private repository per league:
+
+- `ConnorGoodman/SleeperFantasyExport2026` for the Sleeper league
+- `ConnorGoodman/EspnFantasyExport2026` for the ESPN league
+
+Each repository is pulled before exporting, then changed data is committed and
+pushed after a successful export.
+
 ## Running the fantasy exporter manually
 
 The exporter is normally run by its CronJob every six hours. To run it immediately,
