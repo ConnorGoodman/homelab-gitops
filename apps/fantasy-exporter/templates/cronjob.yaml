@@ -74,16 +74,16 @@ spec:
             {{ if .Values.gitSync.enabled }}
             {{- range .Values.gitSync.repositories }}
             - name: git-push-{{ .name }}
-              image: {{ .Values.gitSync.image | quote }}
+              image: {{ $.Values.gitSync.image | quote }}
               env:
                 - name: GIT_USERNAME
-                  value: {{ .Values.gitSync.username | quote }}
+                  value: {{ $.Values.gitSync.username | quote }}
                 - name: GIT_BRANCH
                   value: {{ .branch | quote }}
                 - name: GITHUB_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      name: {{ .Values.gitSync.existingSecret }}
+                      name: {{ $.Values.gitSync.existingSecret }}
                       key: token
               command: ["/bin/sh", "-c"]
               args:
