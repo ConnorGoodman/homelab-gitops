@@ -39,12 +39,9 @@ spec:
                     git -C {{ .folder | quote }} fetch origin {{ .branch | quote }};
                     git -C {{ .folder | quote }} reset --hard origin/{{ .branch }};
                   else
-                    git clone --branch {{ .branch | quote }}
-                    "$repo_url"
-                    {{ .folder | quote }};
+                    git clone --branch {{ .branch | quote }} "$repo_url" {{ .folder | quote }};
                   fi;
-                  git -C {{ .folder | quote }} remote set-url origin
-                  "$repo_url";
+                  git -C {{ .folder | quote }} remote set-url origin "$repo_url";
                   {{- end }}
               volumeMounts:
                 - name: data
