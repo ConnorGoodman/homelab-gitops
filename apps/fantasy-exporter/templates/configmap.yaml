@@ -4,4 +4,4 @@ metadata:
   name: fantasy-exporter-config
 data:
   .fantasy-export.json: |
-{{ .Values.exportConfig | toJson | nindent 4 }}
+{{ dict "leagues" .Values.exportConfig | toJson | nindent 4 }}

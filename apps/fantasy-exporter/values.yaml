@@ -32,6 +32,5 @@ exportConfig:
 
 # Credentials used to log in to ESPN to access league data. These are required for the ESPN provider to work.
 espnCredentials:
-  enabled: false
-  swid: "<SWID>"
-  s2: "<S2>"
+  enabled: true
+  existingSecret: "fantasy-exporter-espn"

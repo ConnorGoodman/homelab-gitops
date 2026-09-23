@@ -14,8 +14,43 @@ kubectl apply -f https://raw.githubusercontent.com/ConnorGoodman/homelab-gitops/
 ## Setting up the fantasy exporter
 There are two league types, Sleeper and ESPN. Sleeper is public, ESPN requires credentials.
 
-To set up the ESPN creds, run: 
+To create the ESPN credentials Secret on the cluster, run this on Linux:
 
-kubectl -n fantasy-exporter create secret generic fantasy-exporter-espn `
-  --from-literal=ESPN_SWID='your-swid' `
+kubectl -n fantasy-exporter create secret generic fantasy-exporter-espn \
+  --from-literal=ESPN_SWID='your-swid' \
   --from-literal=ESPN_S2='your-s2'
+
+## Running the fantasy exporter manually
+
+The exporter is normally run by its CronJob every six hours. To run it immediately,
+create a one-time Job from the deployed CronJob:
+
+```bash
+kubectl -n fantasy-exporter create job fantasy-exporter-manual-$(date +%Y%m%d%H%M%S) --from=cronjob/fantasy-exporter-cronjob
+```
+
+On PowerShell, use:
+
+```powershell
+kubectl -n fantasy-exporter create job fantasy-exporter-manual-$(Get-Date -Format yyyyMMddHHmmss) --from=cronjob/fantasy-exporter-cronjob
+```
+
+Check the Job and its Pod:
+
+```powershell
+kubectl -n fantasy-exporter get jobs,pods
+kubectl -n fantasy-exporter logs -l job-name=<job-name>
+```
+
+Delete the completed Job after reviewing it:
+
+```powershell
+kubectl -n fantasy-exporter delete job <job-name>
+```
+
+```ubuntu
+sudo kubect-n fantasy-exporter create job fantasy-exporter-manual-$(date +%Y%m%d%H%M%S) --from=cronjob/fantasy-exporter-cronjob
+```
+
+The first manually created Job also acts as the first PVC consumer, so it allows
+the `local-path` storage provisioner to bind `fantasy-exporter-pvc`.

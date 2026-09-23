@@ -22,7 +22,7 @@ spec:
               {{ if .Values.espnCredentials.enabled }}
               envFrom:
                 - secretRef:
-                    name: fantasy-exporter-espn
+                  name: {{ .Values.espnCredentials.existingSecret | default "fantasy-exporter-espn" }}
               {{ end }}
               volumeMounts:
                 - name: config
