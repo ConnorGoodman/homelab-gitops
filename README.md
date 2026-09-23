@@ -10,3 +10,12 @@ I will have a private dns server running on each of my nodes. A load balancer wi
 
 ## Kicking of the App of Apps
 kubectl apply -f https://raw.githubusercontent.com/ConnorGoodman/homelab-gitops/main/root-app.yaml
+
+## Setting up the fantasy exporter
+There are two league types, Sleeper and ESPN. Sleeper is public, ESPN requires credentials.
+
+To set up the ESPN creds, run: 
+
+kubectl -n fantasy-exporter create secret generic fantasy-exporter-espn `
+  --from-literal=ESPN_SWID='your-swid' `
+  --from-literal=ESPN_S2='your-s2'
