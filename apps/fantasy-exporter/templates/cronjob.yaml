@@ -12,6 +12,10 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          {{- with .Values.image.pullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{ if .Values.gitSync.enabled }}
           initContainers:
             - name: git-pull

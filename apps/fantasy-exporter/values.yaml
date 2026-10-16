@@ -2,6 +2,7 @@ image:
   repository: ghcr.io/connorgoodman/fantasyfootballleagueexporter
   tag: latest
   pullPolicy: Always
+  pullSecrets: []
 
 schedule: "0 */6 * * *"
 
