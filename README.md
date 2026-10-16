@@ -36,6 +36,30 @@ The chart is configured to use one private repository per league:
 Each repository is pulled before exporting, then changed data is committed and
 pushed after a successful export.
 
+### Enable FantasyCalc trade values
+
+FantasyCalc is an optional public supplement. To include current trade values in a league export, edit `apps/fantasy-exporter/values.yaml` and add `fantasycalc: true` to that league's `exportConfig` entry:
+
+```yaml
+exportConfig:
+  - name: "sleeper-league"
+    provider: "sleeper"
+    league_id: "SLEEPER_LEAGUE_ID"
+    folder: "/data/sleeper"
+    fantasycalc: true
+```
+
+The chart renders `exportConfig` into the `.fantasy-export.json` ConfigMap. The CronJob then runs `fantasy-export export-all /config`, so the change is picked up after Argo CD syncs the Helm chart. No FantasyCalc credential or Kubernetes Secret is required. For Sleeper leagues, the exporter derives PPR, team count, and 1QB/2QB format from the league settings. Add `fantasycalc_options` to the same entry to override those defaults, for example:
+
+```yaml
+    fantasycalc: true
+    fantasycalc_options:
+      isDynasty: false
+      tep: "0.5"
+```
+
+The export repository will contain `data/fantasycalc.json`; the same payload is available to downstream AI tooling at `ai/context.json` under `external_enrichment.fantasycalc`. FantasyCalc requests are cached by the service and should not be refreshed more than once every three hours. Follow FantasyCalc's terms of use and attribution requirements when displaying the values.
+
 ## Running the fantasy exporter manually
 
 The exporter is normally run by its CronJob every six hours. To run it immediately,

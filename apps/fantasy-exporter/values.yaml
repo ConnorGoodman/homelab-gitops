@@ -33,6 +33,7 @@ exportConfig:
     my_team_label: "Connor's Slopperia"
     median_bonus: true
     fantasypros: true
+    fantasycalc: true
     weeks: 18
   - name: "espn-league"
     provider: "espn"
@@ -43,6 +44,7 @@ exportConfig:
     my_team_label: "ESPN Team 1"
     median_bonus: true
     fantasypros: true
+    fantasycalc: true
     weeks: 18
 
 # Credentials used to log in to ESPN to access league data. These are required for the ESPN provider to work.
