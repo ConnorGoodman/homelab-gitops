@@ -35,6 +35,12 @@ exportConfig:
     median_bonus: true
     fantasypros: true
     fantasycalc: true
+    fantasycalc_options:
+      isDynasty: false
+      numTeams: 10
+      ppr: 0.5
+      tep: "none"
+      numQbs: "1"
     weeks: 18
   - name: "espn-league"
     provider: "espn"
